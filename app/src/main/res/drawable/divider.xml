@@ -1,0 +1,13 @@
+<inset xmlns:android="http://schemas.android.com/apk/res/android"
+    android:insetLeft="80dp"
+    android:insetTop="0dp"
+    android:insetBottom="0dp"
+    android:insetRight="10dp">
+
+    <shape>
+        <size android:height="2dp" />
+        <solid android:color="#D8D8D8" />
+        <corners android:radius="2dp" />
+    </shape>
+
+</inset>
