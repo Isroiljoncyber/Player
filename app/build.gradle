@@ -72,6 +72,9 @@ dependencies {
     // lottie
     implementation 'com.airbnb.android:lottie:3.4.1'
 
+    //
+    implementation 'com.facebook.shimmer:shimmer:0.5.0'
+
 }
 
 kapt {

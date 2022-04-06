@@ -8,6 +8,6 @@ import com.example.player.data.entity.MusicModel
 interface MusicDao {
 
     @Insert
-    suspend fun insert(musicModel: MusicModel)
+    fun insert(musicModel: MusicModel)
 
 }

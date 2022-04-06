@@ -4,10 +4,12 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="app/src/main/res/drawable/back.xml" value="0.2155" />
+        <entry key="app/src/main/res/drawable/empty_view.xml" value="0.2245" />
         <entry key="app/src/main/res/drawable/gradient.xml" value="0.2155" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.33125" />
         <entry key="app/src/main/res/layout/fragment_main_play.xml" value="0.33" />
         <entry key="app/src/main/res/layout/fragment_music_list.xml" value="0.33125" />
+        <entry key="app/src/main/res/layout/item_music.xml" value="0.25" />
       </map>
     </option>
   </component>
