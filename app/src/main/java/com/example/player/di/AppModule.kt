@@ -39,10 +39,3 @@ class AppModule {
     }
 
 }
-
-//@Module
-//@InstallIn(SingletonComponent::class) // or whatever graph fits your need the best
-//interface RepositoryModules {
-//    @Binds
-//    fun provideMainRepositoryImpl(repository: RepositoryImpl): MainRepository
-//}

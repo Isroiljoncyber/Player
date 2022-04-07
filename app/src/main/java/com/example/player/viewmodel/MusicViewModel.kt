@@ -10,15 +10,18 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
-class MusicViewModel @Inject constructor(private val musicDao: MainRepository) : ViewModel() {
+class MusicViewModel @Inject constructor(private val repository: MainRepository) : ViewModel() {
 
-    val allMusicList = MutableLiveData<MusicModel>()
+    val allMusicList = MutableLiveData<List<MusicModel>>()
 
     fun getAllMusic() {
-
+        CoroutineScope(Dispatchers.IO).launch {
+            repository.getAllMusicsFromInternal(allMusicList)
+        }
     }
 
 //    fun insert(musicModel: MusicModel) {
