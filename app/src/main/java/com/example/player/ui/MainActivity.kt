@@ -12,10 +12,12 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import com.example.player.R
 import com.example.player.data.entity.MusicModel
+import com.example.player.ui.Adapter.MusicAdapter
 import com.example.player.viewmodel.MusicViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
@@ -33,8 +35,6 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         getAllPermission(this)
-
-//        viewModel.insert(MusicModel(0,"Hello", "Men", "hello", "12:00", "12:00", "//"))
 
     }
 
@@ -58,7 +58,6 @@ class MainActivity : AppCompatActivity() {
             PERMISSION_REQUEST_CODE -> {
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     navController = findNavController(R.id.nav_host_fragment_main)
-                    loadData()
                 } else {
                     Toast.makeText(this, "NO PERMISSION", Toast.LENGTH_SHORT).show();
                 }
@@ -67,7 +66,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun loadData(){
-        viewModel.getAllMusic()
+    companion object {
+
     }
 }

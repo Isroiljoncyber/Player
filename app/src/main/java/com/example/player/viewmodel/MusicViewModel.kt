@@ -1,8 +1,6 @@
 package com.example.player.viewmodel
 
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import com.example.player.data.MusicDao
 import com.example.player.data.entity.MusicModel
 import com.example.player.repository.MainRepository
@@ -17,6 +15,7 @@ import javax.inject.Inject
 class MusicViewModel @Inject constructor(private val repository: MainRepository) : ViewModel() {
 
     val allMusicList = MutableLiveData<List<MusicModel>>()
+    val list = ArrayList<MusicModel>()
 
     fun getAllMusic() {
         CoroutineScope(Dispatchers.IO).launch {

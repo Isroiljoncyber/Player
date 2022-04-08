@@ -5,7 +5,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.player.data.entity.MusicModel
-import com.example.player.databinding.FragmentMainPlayBinding
 import com.example.player.databinding.ItemMusicBinding
 
 class MusicAdapter(private val musicList: List<MusicModel>) :
@@ -19,7 +18,11 @@ class MusicAdapter(private val musicList: List<MusicModel>) :
 
     override fun onBindViewHolder(holder: AdapterViewHolder, position: Int) {
         with(holder) {
-
+            binding.mainShimmer.visibility = View.GONE
+            binding.mainShimmer.stopShimmer()
+            binding.mainShimmer.setShimmer(null)
+            binding.tvName.text = musicList[position].title
+            binding.tvArtist.text = musicList[position].artist
         }
     }
 
