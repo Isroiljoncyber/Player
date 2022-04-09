@@ -6,8 +6,12 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.player.data.entity.MusicModel
 import com.example.player.databinding.ItemMusicBinding
+import kotlinx.android.synthetic.main.item_music.view.*
 
-class MusicAdapter(private val musicList: List<MusicModel>) :
+class MusicAdapter(
+    private val musicList: List<MusicModel>,
+    private val callBack: MusicPlayerCallBack
+) :
     RecyclerView.Adapter<MusicAdapter.AdapterViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AdapterViewHolder {
@@ -17,16 +21,28 @@ class MusicAdapter(private val musicList: List<MusicModel>) :
     }
 
     override fun onBindViewHolder(holder: AdapterViewHolder, position: Int) {
+        var currentModel = musicList[position]
+
         with(holder) {
             binding.mainShimmer.visibility = View.GONE
             binding.mainShimmer.stopShimmer()
             binding.mainShimmer.setShimmer(null)
-            binding.tvName.text = musicList[position].title
-            binding.tvArtist.text = musicList[position].artist
+            binding.tvName.text = currentModel.title
+            binding.tvArtist.text = currentModel.artist
+        }
+
+        // Calling to viewModel to play music
+        holder.itemView.setOnClickListener {
+//            it.tvName.isSelected = true
+            callBack.onClick(currentModel)
         }
     }
 
     override fun getItemCount(): Int = musicList.size
 
     class AdapterViewHolder(val binding: ItemMusicBinding) : RecyclerView.ViewHolder(binding.root)
+}
+
+interface MusicPlayerCallBack {
+    fun onClick(musicModel: MusicModel)
 }

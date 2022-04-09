@@ -8,9 +8,11 @@ import android.view.ViewGroup
 import androidx.activity.viewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
+import com.example.player.data.entity.MusicModel
 import com.example.player.databinding.FragmentMainPlayBinding
 import com.example.player.databinding.FragmentMusicListBinding
 import com.example.player.ui.Adapter.MusicAdapter
+import com.example.player.ui.Adapter.MusicPlayerCallBack
 import com.example.player.viewmodel.MusicViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -35,24 +37,21 @@ class MusicListFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel = ViewModelProvider(this).get(MusicViewModel::class.java)
+        viewModel = ViewModelProvider(requireActivity()).get(MusicViewModel::class.java)
 
+        adapterMusic = MusicAdapter(viewModel.allMusicList, object : MusicPlayerCallBack {
+            override fun onClick(musicModel: MusicModel) {
+                context?.let { viewModel.playMusic(it, musicModel.url_music) }
+            }
+        })
 
-        adapterMusic = MusicAdapter(viewModel.allMusicList.)
-        binding.recyclerMusic.adapter = adapterMusic
-
-        viewModel.allMusicList.observe(this) {
-            adapterMusic = MusicAdapter(it)
-            binding.recyclerMusic.adapter = adapterMusic
-        }
-
-//        adapterMusic = MusicAdapter(viewModel.allMusicList)
-//        binding.recyclerMusic.adapter = adapterMusic
-
-    }
+     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        binding.recyclerMusic.adapter = adapterMusic
+
     }
 
     companion object {

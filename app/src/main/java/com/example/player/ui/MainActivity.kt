@@ -58,6 +58,7 @@ class MainActivity : AppCompatActivity() {
             PERMISSION_REQUEST_CODE -> {
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     navController = findNavController(R.id.nav_host_fragment_main)
+                    viewModel.getAllMusic()
                 } else {
                     Toast.makeText(this, "NO PERMISSION", Toast.LENGTH_SHORT).show();
                 }
