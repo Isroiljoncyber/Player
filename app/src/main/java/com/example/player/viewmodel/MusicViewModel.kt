@@ -38,7 +38,9 @@ class MusicViewModel @Inject constructor(
     var tvTimeStart: ObservableField<String> = ObservableField()
     var tvTimeEnd: ObservableField<String> = ObservableField()
 
-    val prefs = context.getSharedPreferences(PREFERENCES_FILE_NAME, Context.MODE_PRIVATE)
+    private val prefs = context.getSharedPreferences(PREFERENCES_FILE_NAME, Context.MODE_PRIVATE)
+    private val editor: SharedPreferences.Editor = prefs.edit()
+    private var rangePosition = 0;
 
     @Singleton
     fun getAllMusic() {
@@ -48,23 +50,49 @@ class MusicViewModel @Inject constructor(
     }
 
     @SuppressLint("CommitPrefEdits")
-    fun playMusic(context: Context, position: Int) {
-        repository.allMusicList[position].apply {
-            val uri = Uri.parse(this.url_music)
-            if (mediaPlayer != null) {
-                mediaPlayer!!.stop()
-                mediaPlayer = MediaPlayer.create(context, uri)
-            } else {
-                mediaPlayer = MediaPlayer.create(context, uri)
+    fun setMusic(context: Context, position: Int) {
+        try {
+            repository.allMusicList[position].apply {
+                val uri = Uri.parse(this.url_music)
+
+                if (mediaPlayer != null) {
+                    mediaPlayer!!.stop()
+                    mediaPlayer = MediaPlayer.create(context, uri)
+                } else {
+                    mediaPlayer = MediaPlayer.create(context, uri)
+                }
+
+                mediaPlayer!!.seekTo(0)
+                mediaPlayer!!.start()
+
+                setViews(position)
+                rangePosition = position
+                // Set the title and name of the music here
+                // I am using dataBinding here first of all we have to declare it in the gradle.build
+                setList(PREF_KEY, repository.allMusicList[position])
             }
-            mediaPlayer!!.start()
-            setViews(position)
-            // Set the title and name of the music here
-            // I am using databinding here first of all we have to declare it in the gradle.build
-            setList(PREF_KEY, repository.allMusicList[position])
+        } catch (ex: Exception) {
+
         }
     }
 
+    fun nextPlaylist(context: Context) {
+        try {
+            mediaPlayer?.let {
+                it.stop()
+                rangePosition++
+                if (rangePosition != 0 && repository.allMusicList.size != 0 && rangePosition < repository.allMusicList.size) {
+                    setMusic(context, rangePosition)
+                } else if (rangePosition == repository.allMusicList.size) {
+                    setMusic(context, 0)
+                }
+            }
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+        }
+    }
+
+    // Set views through the UI
     fun setViews(position: Int) {
         repository.allMusicList[position].apply {
             tvTitle.set(this.title)
@@ -78,9 +106,9 @@ class MusicViewModel @Inject constructor(
 //        }
 //    }
 
-    private val editor: SharedPreferences.Editor = prefs.edit()
 
-    fun <T> setList(key: String?, list: T?) {
+    // Get and Set the last music model to sharedPreference
+    private fun <T> setList(key: String?, list: T?) {
         val gson = Gson()
         val json: String = gson.toJson(list)
         set(key, json)
@@ -101,6 +129,5 @@ class MusicViewModel @Inject constructor(
         }
         return null
     }
-
 
 }

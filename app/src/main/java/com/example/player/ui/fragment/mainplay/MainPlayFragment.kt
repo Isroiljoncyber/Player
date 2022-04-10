@@ -12,9 +12,12 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
 import com.example.player.R
-import com.example.player.data.entity.MusicModel
 import com.example.player.databinding.FragmentMainPlayBinding
 import com.example.player.viewmodel.MusicViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class MainPlayFragment : Fragment() {
 
@@ -45,6 +48,13 @@ class MainPlayFragment : Fragment() {
                 .navigate(R.id.action_mainPlayFragment_to_musicList)
         }
 
+        binding.btnNext.setOnClickListener {
+            context?.let { it1 -> viewModel.nextPlaylist(it1) }
+            totalTime = viewModel.mediaPlayer!!.duration
+            binding.seekMusic.max = totalTime
+        }
+
+        // Refreshing seekbar
         binding.seekMusic.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(p0: SeekBar?, progress: Int, fromUser: Boolean) {
                 if (fromUser) {
@@ -60,16 +70,14 @@ class MainPlayFragment : Fragment() {
             override fun onStopTrackingTouch(p0: SeekBar?) {
 
             }
-
         })
-
-        Thread {
+        CoroutineScope(Dispatchers.IO).launch {
             while (viewModel.mediaPlayer != null) {
                 try {
                     val message = Message()
                     message.what = viewModel.mediaPlayer!!.currentPosition
                     handler.sendMessage(message)
-//                    Thread.sleep(1000)
+                    delay(500)
                     if (viewModel.mediaPlayer!!.currentPosition == totalTime) {
                         viewModel.mediaPlayer!!.pause()
                     }
@@ -77,7 +85,7 @@ class MainPlayFragment : Fragment() {
                     e.printStackTrace()
                 }
             }
-        }.start()
+        }
 
     }
 
@@ -86,10 +94,9 @@ class MainPlayFragment : Fragment() {
             val lastMusic = viewModel.getLastMusic()
             viewModel.apply {
                 if (lastMusic == null) {
-                    context?.let { this.playMusic(it, 0) }
+                    context?.let { this.setMusic(it, 0) }
                     this.mediaPlayer?.also {
                         it.isLooping = true
-                        it.seekTo(0)
                         totalTime = it.duration
                         binding.seekMusic.max = totalTime
                     }
@@ -100,9 +107,8 @@ class MainPlayFragment : Fragment() {
                     binding.seekMusic.max = totalTime
                 }
             }
-
         } catch (ex: Exception) {
-
+            ex.printStackTrace()
         }
     }
 
@@ -133,4 +139,5 @@ class MainPlayFragment : Fragment() {
         super.onDestroyView()
 //        _binding = null
     }
+
 }

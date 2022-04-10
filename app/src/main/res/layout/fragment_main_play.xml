@@ -6,6 +6,10 @@
     <data>
 
         <variable
+            name="context"
+            type="android.content.Context" />
+
+        <variable
             name="viewmodel"
             type="com.example.player.viewmodel.MusicViewModel" />
 
@@ -173,7 +177,7 @@
             android:text="@{viewmodel.tvTimeStart}"
             android:textColor="#E9EDED"
             android:textSize="15sp"
-            app:layout_constraintBottom_toTopOf="@id/btn_provius"
+            app:layout_constraintBottom_toTopOf="@id/btnProvius"
             app:layout_constraintLeft_toLeftOf="parent" />
 
         <TextView
@@ -186,12 +190,12 @@
             android:text="@{viewmodel.tvTimeEnd}"
             android:textColor="#E9EDED"
             android:textSize="15sp"
-            app:layout_constraintBottom_toTopOf="@id/btn_next"
+            app:layout_constraintBottom_toTopOf="@id/btnNext"
             app:layout_constraintRight_toRightOf="parent" />
 
 
         <androidx.cardview.widget.CardView
-            android:id="@+id/btn_provius"
+            android:id="@+id/btnProvius"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_marginLeft="50dp"
@@ -203,7 +207,7 @@
             app:cardElevation="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toLeftOf="@id/btn_play">
+            app:layout_constraintRight_toLeftOf="@id/btnPlay">
 
             <ImageView
                 android:layout_width="32dp"
@@ -213,7 +217,7 @@
         </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView
-            android:id="@+id/btn_play"
+            android:id="@+id/btnPlay"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_marginBottom="50dp"
@@ -223,8 +227,8 @@
             app:cardCornerRadius="25dp"
             app:cardElevation="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toRightOf="@id/btn_provius"
-            app:layout_constraintRight_toLeftOf="@id/btn_next"
+            app:layout_constraintLeft_toRightOf="@id/btnProvius"
+            app:layout_constraintRight_toLeftOf="@id/btnNext"
             tools:ignore="OnClick">
 
             <ImageView
@@ -236,7 +240,7 @@
         </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView
-            android:id="@+id/btn_next"
+            android:id="@+id/btnNext"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_marginRight="50dp"
@@ -247,7 +251,7 @@
             app:cardCornerRadius="25dp"
             app:cardElevation="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toRightOf="@id/btn_play"
+            app:layout_constraintLeft_toRightOf="@id/btnPlay"
             app:layout_constraintRight_toRightOf="parent">
 
             <ImageView
@@ -255,6 +259,7 @@
                 android:layout_height="32dp"
                 android:layout_gravity="center"
                 android:src="@drawable/ic_next_24" />
+
         </androidx.cardview.widget.CardView>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

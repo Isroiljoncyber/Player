@@ -37,7 +37,7 @@ class MusicListFragment : Fragment() {
 
         adapterMusic = MusicAdapter(viewModel.repository.allMusicList, object : MusicPlayerCallBack {
             override fun onClick(position: Int) {
-                context?.let { viewModel.playMusic(it, position) }
+                context?.let { viewModel.setMusic(it, position) }
             }
         })
 
