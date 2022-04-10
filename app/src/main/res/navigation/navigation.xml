@@ -6,7 +6,7 @@
     app:startDestination="@id/mainPlayFragment">
     <fragment
         android:id="@+id/mainPlayFragment"
-        android:name="com.example.player.ui.fragment.MainPlayFragment"
+        android:name="com.example.player.ui.fragment.mainplay.MainPlayFragment"
         android:label="fragment_main_play"
         tools:layout="@layout/fragment_main_play" >
         <action
@@ -16,7 +16,7 @@
     </fragment>
     <fragment
         android:id="@+id/musicList"
-        android:name="com.example.player.MusicListFragment"
+        android:name="com.example.player.ui.fragment.playlist.MusicListFragment"
         android:label="fragment_music_list"
         tools:layout="@layout/fragment_music_list" />
 </navigation>

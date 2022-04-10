@@ -1,18 +1,14 @@
-package com.example.player
+package com.example.player.ui.fragment.playlist
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.viewModels
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import com.example.player.data.entity.MusicModel
-import com.example.player.databinding.FragmentMainPlayBinding
 import com.example.player.databinding.FragmentMusicListBinding
-import com.example.player.ui.Adapter.MusicAdapter
-import com.example.player.ui.Adapter.MusicPlayerCallBack
+import com.example.player.ui.adapter.MusicAdapter
+import com.example.player.ui.adapter.MusicPlayerCallBack
 import com.example.player.viewmodel.MusicViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -24,7 +20,6 @@ class MusicListFragment : Fragment() {
     private var adapterMusic: MusicAdapter? = null
 
     lateinit var viewModel: MusicViewModel
-//    private val viewModel by viewModels<MusicViewModel>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -35,28 +30,20 @@ class MusicListFragment : Fragment() {
         return view
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        viewModel = ViewModelProvider(requireActivity()).get(MusicViewModel::class.java)
-
-        adapterMusic = MusicAdapter(viewModel.allMusicList, object : MusicPlayerCallBack {
-            override fun onClick(musicModel: MusicModel) {
-                context?.let { viewModel.playMusic(it, musicModel.url_music) }
-            }
-        })
-
-     }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        viewModel = ViewModelProvider(requireActivity()).get(MusicViewModel::class.java)
+
+        adapterMusic = MusicAdapter(viewModel.repository.allMusicList, object : MusicPlayerCallBack {
+            override fun onClick(position: Int) {
+                context?.let { viewModel.playMusic(it, position) }
+            }
+        })
+
+        binding.viewmodel = viewModel
         binding.recyclerMusic.adapter = adapterMusic
 
-    }
-
-    companion object {
-        @JvmStatic
-        fun newInstance() = MusicListFragment()
     }
 
     override fun onDestroyView() {

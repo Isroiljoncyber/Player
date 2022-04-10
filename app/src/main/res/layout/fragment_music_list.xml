@@ -2,14 +2,12 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".MusicListFragment">
+    tools:context=".ui.fragment.playlist.MusicListFragment">
 
-    <data>w
-
-        <import type="android.view.View" />
+    <data>
 
         <variable
-            name="viewModel"
+            name="viewmodel"
             type="com.example.player.viewmodel.MusicViewModel" />
     </data>
 
@@ -124,14 +122,14 @@
 
                     </androidx.cardview.widget.CardView>
 
-                    <TextView
+                    <androidx.appcompat.widget.AppCompatTextView
                         android:id="@+id/bottomBarName"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="10dp"
                         android:layout_marginTop="10dp"
                         android:maxLength="15"
-                        android:text="@{}"
+                        android:text="@{viewmodel.tvTitle}"
                         android:textColor="#000"
                         android:textSize="12sp"
                         android:textStyle="bold"
@@ -144,7 +142,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="10dp"
                         android:maxLength="18"
-                        android:text=""
+                        android:text="@{viewmodel.tvArtist}"
                         android:textSize="10sp"
                         app:layout_constraintLeft_toRightOf="@id/m_image"
                         app:layout_constraintTop_toBottomOf="@id/bottomBarName"

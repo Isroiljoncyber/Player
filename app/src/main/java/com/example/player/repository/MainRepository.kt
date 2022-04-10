@@ -8,6 +8,7 @@ import javax.inject.Singleton
 
 interface MainRepository {
 
-    suspend fun getAllMusicsFromInternal(): MutableList<MusicModel>
+    var allMusicList: MutableList<MusicModel>
+    suspend fun getAllMusicsFromInternal()
 
 }

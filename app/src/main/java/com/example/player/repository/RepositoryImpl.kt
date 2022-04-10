@@ -21,28 +21,44 @@ class RepositoryImpl @Inject constructor(
     @ApplicationContext private val context: Context
 ) : MainRepository {
 
+
+    private var _allMusicList = mutableListOf<MusicModel>()
+
     suspend fun insert(musicModel: MusicModel) {
         withContext(Dispatchers.IO) {
             musicDao.insert(musicModel)
         }
     }
 
+    override var allMusicList: MutableList<MusicModel>
+        get() = _allMusicList
+        set(value) {}
+
+
     @SuppressLint("Recycle")
-    override suspend fun getAllMusicsFromInternal(): MutableList<MusicModel> {
-        val allMusic: MutableList<MusicModel> = ArrayList()
-        val uri: Uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-        val cursor: Cursor? = context.contentResolver.query(uri, null, null, null, null)
-        if (cursor != null && cursor.moveToFirst()) {
-            val _title = cursor.getColumnIndex(MediaStore.Audio.Media.TITLE)
-            val _artist = cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST)
-            val _fullUri = cursor.getColumnIndex(MediaStore.Audio.Media.DATA)
-            do {
-                val title: String = cursor.getString(_title)
-                val artist: String = cursor.getString(_artist)
-                val fullUri: String = cursor.getString(_fullUri)
-                allMusic.add(MusicModel(title = title, artist = artist, url_music = fullUri))
-            } while (cursor.moveToNext())
+    override suspend fun getAllMusicsFromInternal() {
+        try {
+            val uri: Uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+            val cursor: Cursor? = context.contentResolver.query(uri, null, null, null, null)
+            if (cursor != null && cursor.moveToFirst()) {
+                val _title = cursor.getColumnIndex(MediaStore.Audio.Media.TITLE)
+                val _artist = cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST)
+                val _fullUri = cursor.getColumnIndex(MediaStore.Audio.Media.DATA)
+                do {
+                    val title: String = cursor.getString(_title)
+                    val artist: String = cursor.getString(_artist)
+                    val fullUri: String = cursor.getString(_fullUri)
+                    _allMusicList.add(
+                        MusicModel(
+                            title = title,
+                            artist = artist,
+                            url_music = fullUri
+                        )
+                    )
+                } while (cursor.moveToNext())
+            }
+        } catch (ex: Exception) {
+
         }
-        return allMusic
     }
 }
