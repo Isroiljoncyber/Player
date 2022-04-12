@@ -13,6 +13,6 @@ data class MusicModel(
     var artist: String,
     var url_music: String,
     var duration_time: String = "",
-    var later_time_position: String = "",
+    var later_time_position: Int = 0,
     var url_image: String = ""
 )

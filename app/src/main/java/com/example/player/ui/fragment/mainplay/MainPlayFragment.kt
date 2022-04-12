@@ -14,10 +14,7 @@ import androidx.navigation.Navigation
 import com.example.player.R
 import com.example.player.databinding.FragmentMainPlayBinding
 import com.example.player.viewmodel.MusicViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 
 class MainPlayFragment : Fragment() {
 
@@ -41,7 +38,24 @@ class MainPlayFragment : Fragment() {
         binding.viewmodel = viewModel
 
         // set default music when user open the app first time
-        setDefaultMusic()
+
+        if (viewModel.repository.allMusicList.size == 0)
+            runBlocking {
+                val job1: Job = launch(context = Dispatchers.IO) {
+                    viewModel.getAllMusic()
+                }
+                val job2: Job = launch(context = Dispatchers.Main) {
+                    setDefaultMusic()
+                }
+                joinAll(job1, job2)
+            }
+
+//        if (viewModel.repository.allMusicList.size == 0) {
+//            var job: Job = CoroutineScope(Dispatchers.Main).async {
+//                viewModel.getAllMusic()
+//            }
+//        } else
+//            setDefaultMusic()
 
         binding.btnMenu.setOnClickListener {
             Navigation.findNavController(it)
@@ -50,8 +64,16 @@ class MainPlayFragment : Fragment() {
 
         binding.btnNext.setOnClickListener {
             context?.let { it1 -> viewModel.nextPlaylist(it1) }
-            totalTime = viewModel.mediaPlayer!!.duration
-            binding.seekMusic.max = totalTime
+            setTotalTime()
+        }
+
+        binding.btnProvius.setOnClickListener {
+            context?.let { context -> viewModel.previousPlayList(context) }
+            setTotalTime()
+        }
+
+        binding.btnPlay.setOnClickListener {
+            context?.let { it1 -> viewModel.playpausePlayList(it1) }
         }
 
         // Refreshing seekbar
@@ -86,31 +108,40 @@ class MainPlayFragment : Fragment() {
                 }
             }
         }
-
     }
 
     private fun setDefaultMusic() {
         try {
             val lastMusic = viewModel.getLastMusic()
             viewModel.apply {
-                if (lastMusic == null) {
-                    context?.let { this.setMusic(it, 0) }
-                    this.mediaPlayer?.also {
-                        it.isLooping = true
-                        totalTime = it.duration
-                        binding.seekMusic.max = totalTime
+                if (lastMusic == null && viewModel.mediaPlayer == null) {
+                    context?.let { this.setMusic(it, 0, false) }
+                    setTotalTime()
+                } else if (viewModel.mediaPlayer != null) {
+                    val position = viewModel.repository.allMusicList.indexOf(lastMusic)
+                    if (position != -1) {
+                        context?.let { viewModel.setMusic(it, position, false) }
+                        if (lastMusic != null) {
+                            setTotalTime(lastMusic.later_time_position)
+                        }
+                    } else {
+                        context?.let { viewModel.setMusic(it, 0, false) }
+                        setTotalTime()
                     }
                 } else {
-                    val position = viewModel.repository.allMusicList.indexOf(lastMusic)
-                    viewModel.setViews(position)
-                    totalTime = viewModel.mediaPlayer!!.duration
-                    binding.seekMusic.max = totalTime
+                    setTotalTime()
                 }
             }
         } catch (ex: Exception) {
             ex.printStackTrace()
         }
     }
+
+    private fun setTotalTime(lastTime: Int = 0) {
+        totalTime = viewModel.mediaPlayer!!.duration
+        binding.seekMusic.max = totalTime
+    }
+
 
     @SuppressLint("HandlerLeak")
     private val handler: Handler = object : Handler() {

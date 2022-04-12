@@ -236,7 +236,7 @@
                 android:layout_width="32dp"
                 android:layout_height="32dp"
                 android:layout_gravity="center"
-                android:src="@drawable/ic_play_24" />
+                android:src="@{viewmodel.isPlaying() ? @drawable/ic_round_pause_24 : @drawable/ic_play_24}" />
         </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView

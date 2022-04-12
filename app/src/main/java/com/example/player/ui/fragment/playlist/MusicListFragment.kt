@@ -32,18 +32,28 @@ class MusicListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         viewModel = ViewModelProvider(requireActivity()).get(MusicViewModel::class.java)
 
         adapterMusic = MusicAdapter(viewModel.repository.allMusicList, object : MusicPlayerCallBack {
             override fun onClick(position: Int) {
-                context?.let { viewModel.setMusic(it, position) }
+                context?.let { viewModel.setMusic(it, position, true) }
             }
         })
 
         binding.viewmodel = viewModel
         binding.recyclerMusic.adapter = adapterMusic
 
+        binding.bottomBarBtnNext.setOnClickListener {
+            context?.let { it1 -> viewModel.nextPlaylist(it1) }
+        }
+
+        binding.bottomBarBtnPrevious.setOnClickListener {
+            context?.let { context -> viewModel.previousPlayList(context) }
+        }
+
+        binding.bottomBarBtnPlay.setOnClickListener{
+            context?.let { it1 -> viewModel.playpausePlayList(it1) }
+        }
     }
 
     override fun onDestroyView() {

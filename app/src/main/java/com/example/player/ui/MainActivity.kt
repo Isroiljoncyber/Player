@@ -27,12 +27,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel.getAllMusic()
-        viewModel.repository.allMusicList
         setContentView(R.layout.activity_main)
-
-        getAllPermission(this)
-
+        getAllPermission(this@MainActivity)
     }
 
     private fun getAllPermission(activity: Activity) {
@@ -54,9 +50,7 @@ class MainActivity : AppCompatActivity() {
         when (requestCode) {
             PERMISSION_REQUEST_CODE -> {
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    CoroutineScope(Dispatchers.Main).async {
-                        navController = findNavController(R.id.nav_host_fragment_main)
-                    }
+                    navController = findNavController(R.id.nav_host_fragment_main)
                 } else {
                     Toast.makeText(this, "NO PERMISSION", Toast.LENGTH_SHORT).show();
                 }

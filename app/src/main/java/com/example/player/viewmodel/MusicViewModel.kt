@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.media.MediaPlayer
 import android.net.Uri
+import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
 import androidx.lifecycle.ViewModel
 import com.example.player.data.entity.MusicModel
@@ -37,6 +38,7 @@ class MusicViewModel @Inject constructor(
     var tvArtist: ObservableField<String> = ObservableField()
     var tvTimeStart: ObservableField<String> = ObservableField()
     var tvTimeEnd: ObservableField<String> = ObservableField()
+    var isPlaying: ObservableBoolean = ObservableBoolean()
 
     private val prefs = context.getSharedPreferences(PREFERENCES_FILE_NAME, Context.MODE_PRIVATE)
     private val editor: SharedPreferences.Editor = prefs.edit()
@@ -50,7 +52,7 @@ class MusicViewModel @Inject constructor(
     }
 
     @SuppressLint("CommitPrefEdits")
-    fun setMusic(context: Context, position: Int) {
+    fun setMusic(context: Context, position: Int, isPlay: Boolean) {
         try {
             repository.allMusicList[position].apply {
                 val uri = Uri.parse(this.url_music)
@@ -62,14 +64,57 @@ class MusicViewModel @Inject constructor(
                     mediaPlayer = MediaPlayer.create(context, uri)
                 }
 
-                mediaPlayer!!.seekTo(0)
-                mediaPlayer!!.start()
+                // from another oart of the fragment we only set the music without playing it
+                if (isPlay) {
+                    mediaPlayer!!.seekTo(0)
+                    mediaPlayer!!.start()
+                    isPlaying.set(true)
+                }
 
                 setViews(position)
                 rangePosition = position
+
                 // Set the title and name of the music here
                 // I am using dataBinding here first of all we have to declare it in the gradle.build
-                setList(PREF_KEY, repository.allMusicList[position])
+                repository.allMusicList[position].later_time_position =
+                    mediaPlayer!!.currentPosition
+
+                setList(
+                    PREF_KEY,
+                    repository.allMusicList[position]
+                )
+            }
+        } catch (ex: Exception) {
+
+        }
+    }
+
+    fun playpausePlayList(context: Context) {
+        try {
+            mediaPlayer?.let {
+                if (it.isPlaying) {
+                    isPlaying.set(false)
+                    it.pause()
+                } else {
+                    it.start()
+                    isPlaying.set(true)
+                }
+            }
+        } catch (ex: Exception) {
+
+        }
+    }
+
+    fun previousPlayList(context: Context) {
+        try {
+            mediaPlayer?.let {
+                it.stop()
+                rangePosition--
+                if (rangePosition == -1) {
+                    setMusic(context, repository.allMusicList.size - 1, true)
+                } else if (rangePosition != 0 && repository.allMusicList.size != 0 && rangePosition < repository.allMusicList.size) {
+                    setMusic(context, rangePosition, true)
+                }
             }
         } catch (ex: Exception) {
 
@@ -82,9 +127,9 @@ class MusicViewModel @Inject constructor(
                 it.stop()
                 rangePosition++
                 if (rangePosition != 0 && repository.allMusicList.size != 0 && rangePosition < repository.allMusicList.size) {
-                    setMusic(context, rangePosition)
+                    setMusic(context, rangePosition, true)
                 } else if (rangePosition == repository.allMusicList.size) {
-                    setMusic(context, 0)
+                    setMusic(context, 0, true)
                 }
             }
         } catch (ex: Exception) {

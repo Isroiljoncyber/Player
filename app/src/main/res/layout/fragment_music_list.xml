@@ -203,11 +203,11 @@
                         app:layout_constraintTop_toTopOf="parent">
 
                         <ImageView
-                            android:id="@+id/small_paly"
+                            android:id="@+id/imgPlay"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
-                            android:src="@drawable/ic_play_24_black" />
+                            android:src="@{viewmodel.isPlaying() ? @drawable/ic_round_pause_24_black : @drawable/ic_play_24_black}" />
                     </androidx.cardview.widget.CardView>
 
                     <androidx.cardview.widget.CardView

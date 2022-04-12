@@ -21,7 +21,6 @@ class RepositoryImpl @Inject constructor(
     @ApplicationContext private val context: Context
 ) : MainRepository {
 
-
     private var _allMusicList = mutableListOf<MusicModel>()
 
     suspend fun insert(musicModel: MusicModel) {
