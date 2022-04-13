@@ -1,6 +1,10 @@
 package com.example.player.ui.fragment.mainplay
 
+import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Message
@@ -8,13 +12,27 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.SeekBar
+import android.widget.Toast
+import androidx.annotation.RequiresApi
+import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
 import com.example.player.R
 import com.example.player.databinding.FragmentMainPlayBinding
 import com.example.player.viewmodel.MusicViewModel
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlin.Array
+import kotlin.Boolean
+import kotlin.Exception
+import kotlin.Int
+import kotlin.IntArray
+import kotlin.String
+import kotlin.arrayOf
+import kotlin.let
 
 class MainPlayFragment : Fragment() {
 
@@ -22,6 +40,8 @@ class MainPlayFragment : Fragment() {
     private val binding get() = _binding!!
     private lateinit var viewModel: MusicViewModel
     private var totalTime: Int = 0
+
+    private val PERMISSION_REQUEST_CODE = 100
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -32,30 +52,24 @@ class MainPlayFragment : Fragment() {
         return view
     }
 
+    @RequiresApi(Build.VERSION_CODES.M)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        initializeViewModel()
+        initBinding()
+    }
+
+    private fun initializeViewModel() {
         viewModel = ViewModelProvider(requireActivity()).get(MusicViewModel::class.java)
         binding.viewmodel = viewModel
+    }
 
-        // set default music when user open the app first time
+    private fun initBinding() {
 
-        if (viewModel.repository.allMusicList.size == 0)
-            runBlocking {
-                val job1: Job = launch(context = Dispatchers.IO) {
-                    viewModel.getAllMusic()
-                }
-                val job2: Job = launch(context = Dispatchers.Main) {
-                    setDefaultMusic()
-                }
-                joinAll(job1, job2)
-            }
-
-//        if (viewModel.repository.allMusicList.size == 0) {
-//            var job: Job = CoroutineScope(Dispatchers.Main).async {
-//                viewModel.getAllMusic()
-//            }
-//        } else
-//            setDefaultMusic()
+        if (viewModel.mediaPlayer != null) {
+            setTotalTime()
+        } else
+            setDefaultMusic()
 
         binding.btnMenu.setOnClickListener {
             Navigation.findNavController(it)
@@ -113,23 +127,24 @@ class MainPlayFragment : Fragment() {
     private fun setDefaultMusic() {
         try {
             val lastMusic = viewModel.getLastMusic()
-            viewModel.apply {
-                if (lastMusic == null && viewModel.mediaPlayer == null) {
-                    context?.let { this.setMusic(it, 0, false) }
+            viewModel.let { it1 ->
+                if (lastMusic == null) {
+                    // It sets the first music from all music list because it has not last music
+                    context?.let { it1.setMusic(it, 0, false) }
                     setTotalTime()
-                } else if (viewModel.mediaPlayer != null) {
-                    val position = viewModel.repository.allMusicList.indexOf(lastMusic)
-                    if (position != -1) {
-                        context?.let { viewModel.setMusic(it, position, false) }
-                        if (lastMusic != null) {
-                            setTotalTime(lastMusic.later_time_position)
-                        }
-                    } else {
-                        context?.let { viewModel.setMusic(it, 0, false) }
-                        setTotalTime()
-                    }
                 } else {
-                    setTotalTime()
+                    // If music player is not null then that is playing now and we only need to set view and last position of the last music
+                    if (viewModel.mediaPlayer == null) {
+                        val position = viewModel.repository.allMusicList.indexOf(lastMusic)
+                        if (position != -1) {
+                            context?.let { viewModel.setMusic(it, position, false) }
+                        } else {
+                            context?.let { viewModel.setMusic(it, 0, false) }
+                        }
+                        setTotalTime()
+                    } else {
+                        setTotalTime(lastMusic.later_time_position)
+                    }
                 }
             }
         } catch (ex: Exception) {
@@ -138,7 +153,10 @@ class MainPlayFragment : Fragment() {
     }
 
     private fun setTotalTime(lastTime: Int = 0) {
-        totalTime = viewModel.mediaPlayer!!.duration
+        if (!lastTime.equals(0)) {
+            totalTime = lastTime
+        } else
+            totalTime = viewModel.mediaPlayer!!.duration
         binding.seekMusic.max = totalTime
     }
 

@@ -112,7 +112,7 @@ class MusicViewModel @Inject constructor(
                 rangePosition--
                 if (rangePosition == -1) {
                     setMusic(context, repository.allMusicList.size - 1, true)
-                } else if (rangePosition != 0 && repository.allMusicList.size != 0 && rangePosition < repository.allMusicList.size) {
+                } else if (repository.allMusicList.size != 0 && rangePosition < repository.allMusicList.size) {
                     setMusic(context, rangePosition, true)
                 }
             }
@@ -126,7 +126,7 @@ class MusicViewModel @Inject constructor(
             mediaPlayer?.let {
                 it.stop()
                 rangePosition++
-                if (rangePosition != 0 && repository.allMusicList.size != 0 && rangePosition < repository.allMusicList.size) {
+                if (repository.allMusicList.size != 0 && rangePosition < repository.allMusicList.size) {
                     setMusic(context, rangePosition, true)
                 } else if (rangePosition == repository.allMusicList.size) {
                     setMusic(context, 0, true)
