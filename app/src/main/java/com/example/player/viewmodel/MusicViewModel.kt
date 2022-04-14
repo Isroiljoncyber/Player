@@ -28,6 +28,7 @@ class MusicViewModel @Inject constructor(
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
+    var isExistes = false
     var mediaPlayer: MediaPlayer? = null
 
     val PREFERENCES_FILE_NAME = "com.example.player.data"

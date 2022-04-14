@@ -59,6 +59,11 @@ class MainPlayFragment : Fragment() {
         initBinding()
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        viewModel.isExistes
+    }
+
     private fun initializeViewModel() {
         viewModel = ViewModelProvider(requireActivity()).get(MusicViewModel::class.java)
         binding.viewmodel = viewModel
@@ -81,7 +86,7 @@ class MainPlayFragment : Fragment() {
             setTotalTime()
         }
 
-        binding.btnProvius.setOnClickListener {
+        binding.btnPrevious.setOnClickListener {
             context?.let { context -> viewModel.previousPlayList(context) }
             setTotalTime()
         }

@@ -26,13 +26,17 @@ class MainActivity : AppCompatActivity() {
     private val PERMISSION_REQUEST_CODE = 100
     private var navController: NavController? = null
 
-    val viewModel by viewModels<MusicViewModel>()
-//    lateinit var viewModel: MusicViewModel
+    //    val viewModel by viewModels<MusicViewModel>()
+    var viewModel: MusicViewModel? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         getAllPermission(this@MainActivity)
+        if (viewModel == null)
+            viewModel = ViewModelProvider(this).get(MusicViewModel::class.java)
+//        print(viewModel.isExistes)
+//        viewModel.isExistes = true
     }
 
     private fun getAllPermission(activity: Activity) {
@@ -54,7 +58,7 @@ class MainActivity : AppCompatActivity() {
         when (requestCode) {
             PERMISSION_REQUEST_CODE -> {
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    viewModel.getAllMusic()
+                    viewModel!!.getAllMusic()
                     navController = findNavController(R.id.nav_host_fragment_main)
                     val finalHost = NavHostFragment.create(R.navigation.navigation)
                     supportFragmentManager.beginTransaction()
@@ -68,5 +72,10 @@ class MainActivity : AppCompatActivity() {
             }
             else -> super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        viewModel!!.isExistes
     }
 }
