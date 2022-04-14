@@ -1,11 +1,15 @@
 package com.example.player.ui.adapter
 
+import android.graphics.BitmapFactory
+import android.media.MediaMetadataRetriever
+import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.player.data.entity.MusicModel
 import com.example.player.databinding.ItemMusicBinding
+
 
 class MusicAdapter(
     private val musicList: List<MusicModel>,
@@ -43,5 +47,5 @@ class MusicAdapter(
 }
 
 interface MusicPlayerCallBack {
-    fun onClick(position:Int)
+    fun onClick(position: Int)
 }

@@ -34,24 +34,24 @@ class RepositoryImpl @Inject constructor(
         set(value) {}
 
 
-    @SuppressLint("Recycle")
+    @SuppressLint("Recycle", "Range")
     override suspend fun getAllMusicsFromInternal() {
         try {
             val uri: Uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
             val cursor: Cursor? = context.contentResolver.query(uri, null, null, null, null)
             if (cursor != null && cursor.moveToFirst()) {
-                val _title = cursor.getColumnIndex(MediaStore.Audio.Media.TITLE)
-                val _artist = cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST)
-                val _fullUri = cursor.getColumnIndex(MediaStore.Audio.Media.DATA)
                 do {
-                    val title: String = cursor.getString(_title)
-                    val artist: String = cursor.getString(_artist)
-                    val fullUri: String = cursor.getString(_fullUri)
+                    val title: String =
+                        cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.TITLE))
+                    val artist: String =
+                        cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST))
+                    val fullUri: String =
+                        cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DATA))
                     _allMusicList.add(
                         MusicModel(
                             title = title,
                             artist = artist,
-                            url_music = fullUri
+                            url_music = fullUri,
                         )
                     )
                 } while (cursor.moveToNext())
