@@ -73,9 +73,4 @@ class MainActivity : AppCompatActivity() {
             else -> super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         }
     }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        viewModel!!.isExistes
-    }
 }

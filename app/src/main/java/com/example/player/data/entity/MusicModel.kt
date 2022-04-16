@@ -14,5 +14,6 @@ data class MusicModel(
     var url_music: String,
     var duration_time: String = "",
     var later_time_position: Int = 0,
-    var url_image: String = ""
+    var url_image: String = "",
+    var lottieVisible: Boolean = false
 )

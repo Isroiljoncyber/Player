@@ -2,14 +2,20 @@ package com.example.player.viewmodel
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.content.SharedPreferences
 import android.media.MediaPlayer
 import android.net.Uri
+import android.os.Build
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
 import androidx.lifecycle.ViewModel
+import com.example.player.App.Companion.lastMusicPosition
+import com.example.player.R
 import com.example.player.data.entity.MusicModel
 import com.example.player.repository.MainRepository
+import com.example.player.util.CreateNotification
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -18,6 +24,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.lang.reflect.Type
+import java.security.AccessController.getContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -28,7 +35,6 @@ class MusicViewModel @Inject constructor(
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
-    var isExistes = false
     var mediaPlayer: MediaPlayer? = null
 
     val PREFERENCES_FILE_NAME = "com.example.player.data"
@@ -75,6 +81,8 @@ class MusicViewModel @Inject constructor(
                 setViews(position)
                 rangePosition = position
 
+                this.lottieVisible = true
+
                 // Set the title and name of the music here
                 // I am using dataBinding here first of all we have to declare it in the gradle.build
                 repository.allMusicList[position].later_time_position =
@@ -84,13 +92,34 @@ class MusicViewModel @Inject constructor(
                     PREF_KEY,
                     repository.allMusicList[position]
                 )
+                // change the appearance of the notification
+                changeNotification(position)
             }
         } catch (ex: Exception) {
 
         }
     }
 
-    fun playpausePlayList(context: Context) {
+    fun changeNotification(position: Int) {
+        try {
+            if (mediaPlayer != null) if (mediaPlayer!!.isPlaying()) {
+                CreateNotification.createNotification(
+                    context,
+                    repository.allMusicList[position],
+                    R.drawable.ic_round_pause_24_black
+                )
+            } else {
+                CreateNotification.createNotification(
+                    context,
+                    repository.allMusicList[position],
+                    R.drawable.ic_play_24_black
+                )
+            }
+        } catch (ex: java.lang.Exception) {
+        }
+    }
+
+    fun playPausePlayList() {
         try {
             mediaPlayer?.let {
                 if (it.isPlaying) {
@@ -101,6 +130,7 @@ class MusicViewModel @Inject constructor(
                     isPlaying.set(true)
                 }
             }
+            changeNotification(rangePosition)
         } catch (ex: Exception) {
 
         }
@@ -110,6 +140,7 @@ class MusicViewModel @Inject constructor(
         try {
             mediaPlayer?.let {
                 it.stop()
+                lastMusicPosition = rangePosition
                 rangePosition--
                 if (rangePosition == -1) {
                     setMusic(context, repository.allMusicList.size - 1, true)
@@ -126,6 +157,7 @@ class MusicViewModel @Inject constructor(
         try {
             mediaPlayer?.let {
                 it.stop()
+                lastMusicPosition = rangePosition
                 rangePosition++
                 if (repository.allMusicList.size != 0 && rangePosition < repository.allMusicList.size) {
                     setMusic(context, rangePosition, true)
@@ -139,7 +171,7 @@ class MusicViewModel @Inject constructor(
     }
 
     // Set views through the UI
-    fun setViews(position: Int) {
+    private fun setViews(position: Int) {
         repository.allMusicList[position].apply {
             tvTitle.set(this.title)
             tvArtist.set(this.artist)

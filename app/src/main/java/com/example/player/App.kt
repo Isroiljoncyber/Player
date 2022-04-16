@@ -13,6 +13,8 @@ import dagger.hilt.android.HiltAndroidApp
 @HiltAndroidApp
 class App : Application() {
 
-
+    companion object {
+        var lastMusicPosition: Int = 0
+    }
 
 }

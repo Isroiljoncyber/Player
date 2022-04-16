@@ -1,9 +1,12 @@
 package com.example.player.ui.fragment.mainplay
 
-import android.Manifest
 import android.annotation.SuppressLint
-import android.app.Activity
-import android.content.pm.PackageManager
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -12,26 +15,23 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.SeekBar
-import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
 import com.example.player.R
+import com.example.player.Service.OnClearActionService
 import com.example.player.databinding.FragmentMainPlayBinding
+import com.example.player.util.CreateNotification
 import com.example.player.viewmodel.MusicViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlin.Array
 import kotlin.Boolean
 import kotlin.Exception
 import kotlin.Int
-import kotlin.IntArray
 import kotlin.String
-import kotlin.arrayOf
 import kotlin.let
 
 class MainPlayFragment : Fragment() {
@@ -57,11 +57,6 @@ class MainPlayFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         initializeViewModel()
         initBinding()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        viewModel.isExistes
     }
 
     private fun initializeViewModel() {
@@ -92,7 +87,7 @@ class MainPlayFragment : Fragment() {
         }
 
         binding.btnPlay.setOnClickListener {
-            context?.let { it1 -> viewModel.playpausePlayList(it1) }
+            context?.let { it1 -> viewModel.playPausePlayList() }
         }
 
         // Refreshing seekbar
@@ -112,6 +107,7 @@ class MainPlayFragment : Fragment() {
 
             }
         })
+
         CoroutineScope(Dispatchers.IO).launch {
             while (viewModel.mediaPlayer != null) {
                 try {
@@ -125,6 +121,54 @@ class MainPlayFragment : Fragment() {
                 } catch (e: InterruptedException) {
                     e.printStackTrace()
                 }
+            }
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            createChannel()
+            context?.registerReceiver(broadcastReceiver, IntentFilter("TRACKS_TRACKS"))
+            context?.startService(Intent(activity?.baseContext, OnClearActionService::class.java))
+        }
+    }
+
+
+    fun createChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                CreateNotification.CHANNAL_ID,
+                "MusicPlayer",
+                NotificationManager.IMPORTANCE_LOW
+            )
+            context?.getSystemService(NotificationManager::class.java)
+                ?.createNotificationChannel(channel)
+        }
+    }
+
+    private var broadcastReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            try {
+                val action = intent.extras!!.getString("action_name")
+                when (action) {
+                    CreateNotification.PREVIUS -> {
+                        try {
+                            viewModel.previousPlayList(context)
+                        } catch (ex: Exception) {
+                        }
+                    }
+                    CreateNotification.NEXT -> {
+                        try {
+                            viewModel.nextPlaylist(context)
+                        } catch (ex: Exception) {
+                        }
+                    }
+                    CreateNotification.PLAY -> {
+                        try {
+                            viewModel.playPausePlayList()
+                        } catch (ex: Exception) {
+                        }
+                    }
+                }
+            } catch (ex: Exception) {
             }
         }
     }
