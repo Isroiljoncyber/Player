@@ -101,5 +101,4 @@ abstract class CreateNotification {
             }
         }
     }
-
 }

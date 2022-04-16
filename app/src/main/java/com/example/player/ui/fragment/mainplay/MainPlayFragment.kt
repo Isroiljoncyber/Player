@@ -180,32 +180,33 @@ class MainPlayFragment : Fragment() {
                 if (lastMusic == null) {
                     // It sets the first music from all music list because it has not last music
                     context?.let { it1.setMusic(it, 0, false) }
-                    setTotalTime()
                 } else {
                     // If music player is not null then that is playing now and we only need to set view and last position of the last music
                     if (viewModel.mediaPlayer == null) {
                         val position = viewModel.repository.allMusicList.indexOf(lastMusic)
                         if (position != -1) {
-                            context?.let { viewModel.setMusic(it, position, false) }
+                            context?.let {
+                                viewModel.setMusic(
+                                    it,
+                                    position,
+                                    false,
+                                    lastDurationTime = viewModel.getLastDuration()
+                                )
+                            }
                         } else {
                             context?.let { viewModel.setMusic(it, 0, false) }
                         }
-                        setTotalTime()
-                    } else {
-                        setTotalTime(lastMusic.later_time_position)
                     }
                 }
+                setTotalTime()
             }
         } catch (ex: Exception) {
             ex.printStackTrace()
         }
     }
 
-    private fun setTotalTime(lastTime: Int = 0) {
-        if (!lastTime.equals(0)) {
-            totalTime = lastTime
-        } else
-            totalTime = viewModel.mediaPlayer!!.duration
+    private fun setTotalTime() {
+        totalTime = viewModel.mediaPlayer!!.duration
         binding.seekMusic.max = totalTime
     }
 
@@ -235,6 +236,7 @@ class MainPlayFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+//        viewModel.setList()
 //        _binding = null
     }
 

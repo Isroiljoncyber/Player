@@ -39,6 +39,7 @@ class MusicViewModel @Inject constructor(
 
     val PREFERENCES_FILE_NAME = "com.example.player.data"
     val PREF_KEY = "uri"
+    val PREF_KEY_POSITION = "position"
 
     // Observable variables which are connected to UI
     var tvTitle: ObservableField<String> = ObservableField()
@@ -59,7 +60,7 @@ class MusicViewModel @Inject constructor(
     }
 
     @SuppressLint("CommitPrefEdits")
-    fun setMusic(context: Context, position: Int, isPlay: Boolean) {
+    fun setMusic(context: Context, position: Int, isPlay: Boolean, lastDurationTime: Int = 0) {
         try {
             repository.allMusicList[position].apply {
                 val uri = Uri.parse(this.url_music)
@@ -77,6 +78,7 @@ class MusicViewModel @Inject constructor(
                     mediaPlayer!!.start()
                     isPlaying.set(true)
                 }
+                if (lastDurationTime != 0) mediaPlayer!!.seekTo(lastDurationTime)
 
                 setViews(position)
                 rangePosition = position
@@ -85,13 +87,7 @@ class MusicViewModel @Inject constructor(
 
                 // Set the title and name of the music here
                 // I am using dataBinding here first of all we have to declare it in the gradle.build
-                repository.allMusicList[position].later_time_position =
-                    mediaPlayer!!.currentPosition
 
-                setList(
-                    PREF_KEY,
-                    repository.allMusicList[position]
-                )
                 // change the appearance of the notification
                 changeNotification(position)
             }
@@ -178,27 +174,32 @@ class MusicViewModel @Inject constructor(
         }
     }
 
-//    fun insert(musicModel: MusicModel) {
+    //    fun insert(musicModel: MusicModel) {
 //        CoroutineScope(Dispatchers.IO).launch {
 //            musicDao.insert(musicModel)
 //        }
-//    }
-
-
-    // Get and Set the last music model to sharedPreference
-    private fun <T> setList(key: String?, list: T?) {
+// Get and Set the last music model to sharedPreference
+    fun setList() {
+        setLastDuration()
         val gson = Gson()
-        val json: String = gson.toJson(list)
-        set(key, json)
+        val json: String = gson.toJson(repository.allMusicList[rangePosition])
+        set(PREF_KEY, json)
     }
 
-    operator fun set(key: String?, value: String?) {
+    fun setLastDuration() {
+        editor.putString(PREF_KEY_POSITION, mediaPlayer!!.currentPosition.toString())
+    }
+
+    fun getLastDuration(): Int {
+        return Integer.parseInt(prefs.getString(PREF_KEY_POSITION, "0"))
+    }
+
+    fun set(key: String?, value: String?) {
         editor.putString(key, value)
         editor.commit()
     }
 
     fun getLastMusic(): MusicModel? {
-        val arrayItems: MusicModel
         val serializedObject: String? = prefs.getString(PREF_KEY, null)
         if (serializedObject != null) {
             val gson = Gson()
