@@ -34,7 +34,7 @@ class AppModule {
     }
 
     @Provides
-    fun provideRepositporyImpp(repositoryImpl: RepositoryImpl): MainRepository {
+    fun provideRepositoryImpl(repositoryImpl: RepositoryImpl): MainRepository {
         return repositoryImpl
     }
 

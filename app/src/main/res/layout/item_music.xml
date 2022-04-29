@@ -15,12 +15,14 @@
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="5dp"
-        android:layout_marginVertical="4dp"
+        android:layout_margin="5dp"
         android:clickable="true"
         android:foreground="?selectableItemBackground"
+        android:outlineAmbientShadowColor="@color/blue"
+        android:outlineSpotShadowColor="@color/blue"
         app:cardCornerRadius="15dp"
-        app:cardElevation="4dp">
+        app:cardElevation="8dp"
+        tools:targetApi="p">
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -136,12 +138,12 @@
                     android:layout_width="32dp"
                     android:layout_height="32dp"
                     android:layout_marginEnd="10dp"
+                    android:visibility="gone"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintRight_toRightOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:lottie_autoPlay="true"
                     app:lottie_loop="true"
-                    android:visibility="gone"
                     app:lottie_rawRes="@raw/playrytme" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>

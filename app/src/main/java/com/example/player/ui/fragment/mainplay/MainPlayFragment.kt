@@ -16,13 +16,17 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.SeekBar
 import androidx.annotation.RequiresApi
+import androidx.databinding.ObservableBoolean
+import androidx.databinding.ObservableField
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
 import com.example.player.R
 import com.example.player.Service.OnClearActionService
 import com.example.player.databinding.FragmentMainPlayBinding
 import com.example.player.util.CreateNotification
+import com.example.player.util.Repeat
 import com.example.player.viewmodel.MusicViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -40,6 +44,8 @@ class MainPlayFragment : Fragment() {
     private val binding get() = _binding!!
     private lateinit var viewModel: MusicViewModel
     private var totalTime: Int = 0
+
+    private val isTouching: ObservableBoolean = ObservableBoolean()
 
     private val PERMISSION_REQUEST_CODE = 100
 
@@ -71,6 +77,8 @@ class MainPlayFragment : Fragment() {
         } else
             setDefaultMusic()
 
+        setViewOfRepeat()
+
         binding.btnMenu.setOnClickListener {
             Navigation.findNavController(it)
                 .navigate(R.id.action_mainPlayFragment_to_musicList)
@@ -90,6 +98,23 @@ class MainPlayFragment : Fragment() {
             context?.let { it1 -> viewModel.playPausePlayList() }
         }
 
+        binding.btnRepeat.setOnClickListener {
+            when (viewModel.getRepeatSituation()) {
+                Repeat.REPEAT_DISABLE.toString() -> {
+                    binding.imgRepeat.setImageResource(R.drawable.ic_active_repeat_24)
+                    viewModel.setRepeatSituation(Repeat.REPEAT_ENABLE)
+                }
+                Repeat.REPEAT_ENABLE.toString() -> {
+                    binding.imgRepeat.setImageResource(R.drawable.ic_repeat_one_24)
+                    viewModel.setRepeatSituation(Repeat.REPEAT_ONE_ENABLE)
+                }
+                Repeat.REPEAT_ONE_ENABLE.toString() -> {
+                    binding.imgRepeat.setImageResource(R.drawable.ic_repeat_24)
+                    viewModel.setRepeatSituation(Repeat.REPEAT_DISABLE)
+                }
+            }
+        }
+
         // Refreshing seekbar
         binding.seekMusic.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(p0: SeekBar?, progress: Int, fromUser: Boolean) {
@@ -100,11 +125,16 @@ class MainPlayFragment : Fragment() {
             }
 
             override fun onStartTrackingTouch(p0: SeekBar?) {
-
+                isTouching.set(true)
             }
 
             override fun onStopTrackingTouch(p0: SeekBar?) {
-
+//                p0!!.progress
+//                p0?.let {
+//                    viewModel.mediaPlayer?.seekTo(it.progress)
+//                    binding.seekMusic.progress = it.progress
+//                }
+//                isTouching.set(false)
             }
         })
 
@@ -114,14 +144,28 @@ class MainPlayFragment : Fragment() {
                     val message = Message()
                     message.what = viewModel.mediaPlayer!!.currentPosition
                     handler.sendMessage(message)
-                    delay(500)
                     if (viewModel.mediaPlayer!!.currentPosition == totalTime) {
                         viewModel.mediaPlayer!!.pause()
+                        when (viewModel.getRepeatSituation()) {
+                            Repeat.REPEAT_DISABLE.toString() -> {
+                                viewModel.nextPlaylist(requireContext())
+                            }
+                            Repeat.REPEAT_ENABLE.toString() -> {
+                                viewModel.nextPlaylist(requireContext())
+                            }
+                            Repeat.REPEAT_ONE_ENABLE.toString() -> {
+                                viewModel.playPausePlayList()
+                            }
+                        }
                     }
                 } catch (e: InterruptedException) {
                     e.printStackTrace()
                 }
             }
+        }
+
+        viewModel.mediaPlayer!!.setOnCompletionListener {
+
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -132,7 +176,21 @@ class MainPlayFragment : Fragment() {
     }
 
 
-    fun createChannel() {
+    private fun setViewOfRepeat() {
+        when (viewModel.getRepeatSituation()) {
+            Repeat.REPEAT_DISABLE.toString() -> {
+                binding.imgRepeat.setImageResource(R.drawable.ic_repeat_24)
+            }
+            Repeat.REPEAT_ENABLE.toString() -> {
+                binding.imgRepeat.setImageResource(R.drawable.ic_active_repeat_24)
+            }
+            Repeat.REPEAT_ONE_ENABLE.toString() -> {
+                binding.imgRepeat.setImageResource(R.drawable.ic_repeat_one_24)
+            }
+        }
+    }
+
+    private fun createChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 CreateNotification.CHANNAL_ID,
@@ -215,12 +273,14 @@ class MainPlayFragment : Fragment() {
     private val handler: Handler = object : Handler() {
         @SuppressLint("SetTextI18n")
         override fun handleMessage(msg: Message) {
-            val currentPosition = msg.what
-            binding.seekMusic.progress = currentPosition
-            val time: String = createTime(currentPosition)
-            viewModel.tvTimeStart.set(time)
-            val end: String = createTime(totalTime - currentPosition)
-            viewModel.tvTimeEnd.set("-$end")
+            if (!isTouching.get()) {
+                val currentPosition = msg.what
+                binding.seekMusic.progress = currentPosition
+                val time: String = createTime(currentPosition)
+                viewModel.tvTimeStart.set(time)
+                val end: String = createTime(totalTime - currentPosition)
+                viewModel.tvTimeEnd.set("-$end")
+            }
         }
     }
 
@@ -239,5 +299,4 @@ class MainPlayFragment : Fragment() {
 //        viewModel.setList()
 //        _binding = null
     }
-
 }

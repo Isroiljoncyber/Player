@@ -16,6 +16,7 @@ import com.example.player.R
 import com.example.player.data.entity.MusicModel
 import com.example.player.repository.MainRepository
 import com.example.player.util.CreateNotification
+import com.example.player.util.Repeat
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -37,9 +38,10 @@ class MusicViewModel @Inject constructor(
 
     var mediaPlayer: MediaPlayer? = null
 
-    val PREFERENCES_FILE_NAME = "com.example.player.data"
-    val PREF_KEY = "uri"
-    val PREF_KEY_POSITION = "position"
+    private val PREFERENCES_FILE_NAME = "com.example.player.data"
+    private val PREF_KEY = "uri"
+    private val PREF_KEY_POSITION = "position"
+    private val PREF_REPEAT = "repeat"
 
     // Observable variables which are connected to UI
     var tvTitle: ObservableField<String> = ObservableField()
@@ -92,7 +94,7 @@ class MusicViewModel @Inject constructor(
                 changeNotification(position)
             }
         } catch (ex: Exception) {
-
+            ex.printStackTrace()
         }
     }
 
@@ -174,11 +176,7 @@ class MusicViewModel @Inject constructor(
         }
     }
 
-    //    fun insert(musicModel: MusicModel) {
-//        CoroutineScope(Dispatchers.IO).launch {
-//            musicDao.insert(musicModel)
-//        }
-// Get and Set the last music model to sharedPreference
+    // Get and Set the last music model to sharedPreference
     fun setList() {
         setLastDuration()
         val gson = Gson()
@@ -187,7 +185,7 @@ class MusicViewModel @Inject constructor(
     }
 
     fun setLastDuration() {
-        editor.putString(PREF_KEY_POSITION, mediaPlayer!!.currentPosition.toString())
+        editor.putString(PREF_KEY_POSITION, mediaPlayer!!.currentPosition.toString()).commit()
     }
 
     fun getLastDuration(): Int {
@@ -209,4 +207,12 @@ class MusicViewModel @Inject constructor(
         return null
     }
 
+    fun setRepeatSituation(repeat: Repeat) {
+        editor.putString(PREF_REPEAT, repeat.toString())
+        editor.commit()
+    }
+
+    fun getRepeatSituation(): String? {
+        return prefs.getString(PREF_REPEAT, Repeat.REPEAT_DISABLE.toString())
+    }
 }
